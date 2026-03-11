@@ -1,0 +1,33 @@
+export const BLOCK_TYPES = {
+    AIR: 0,
+    GRASS: 1,
+    DIRT: 2,
+    STONE: 3,
+    SAND: 4,
+    WOOD: 5,
+    LEAVES: 6,
+    WATER: 7,
+    SNOW: 8,
+    BEDROCK: 9,
+    PLANKS: 10,
+    COBBLESTONE: 11,
+    GLASS: 13,
+    GRAVEL: 14
+};
+
+export const BLOCKS = {
+    [BLOCK_TYPES.AIR]: { name: 'Air', transparent: true, collidable: false },
+    [BLOCK_TYPES.GRASS]: { name: 'Grass', color: 0x4caf50, texture: 'grass' },
+    [BLOCK_TYPES.DIRT]: { name: 'Dirt', color: 0x795548, texture: 'dirt' },
+    [BLOCK_TYPES.STONE]: { name: 'Stone', color: 0x9e9e9e, texture: 'stone' },
+    [BLOCK_TYPES.SAND]: { name: 'Sand', color: 0xffeb3b, texture: 'sand' },
+    [BLOCK_TYPES.WOOD]: { name: 'Wood', color: 0x3e2723, texture: 'wood' },
+    [BLOCK_TYPES.LEAVES]: { name: 'Leaves', color: 0x1b5e20, texture: 'leaves', transparent: true },
+    [BLOCK_TYPES.WATER]: { name: 'Water', color: 0x03a9f4, texture: 'water', transparent: true, collidable: false },
+    [BLOCK_TYPES.SNOW]: { name: 'Snow', color: 0xffffff, texture: 'snow' },
+    [BLOCK_TYPES.BEDROCK]: { name: 'Bedrock', color: 0x212121, texture: 'bedrock' },
+    [BLOCK_TYPES.PLANKS]: { name: 'Planks', color: 0x8d6e63, texture: 'planks' },
+    [BLOCK_TYPES.COBBLESTONE]: { name: 'Cobblestone', color: 0x757575, texture: 'cobblestone' },
+    [BLOCK_TYPES.GLASS]: { name: 'Glass', color: 0xffffff, texture: 'glass', transparent: true },
+    [BLOCK_TYPES.GRAVEL]: { name: 'Gravel', color: 0x9e9e9e, texture: 'gravel' }
+};
