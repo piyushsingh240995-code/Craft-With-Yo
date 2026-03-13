@@ -20,6 +20,12 @@ export class Inventory {
         this.fullInventory = [...this.hotbar];
         this.fullInventory.push({ type: BLOCK_TYPES.GLASS, name: 'Glass', count: 64 });
         this.fullInventory.push({ type: BLOCK_TYPES.GRAVEL, name: 'Gravel', count: 64 });
+        this.fullInventory.push({ type: BLOCK_TYPES.MUD, name: 'Mud', count: 64 });
+        this.fullInventory.push({ type: BLOCK_TYPES.CACTUS, name: 'Cactus', count: 64 });
+        this.fullInventory.push({ type: BLOCK_TYPES.COAL_ORE, name: 'Coal Ore', count: 64 });
+        this.fullInventory.push({ type: BLOCK_TYPES.IRON_ORE, name: 'Iron Ore', count: 64 });
+        this.fullInventory.push({ type: BLOCK_TYPES.GOLD_ORE, name: 'Gold Ore', count: 64 });
+        this.fullInventory.push({ type: BLOCK_TYPES.DIAMOND_ORE, name: 'Diamond Ore', count: 64 });
 
         window.addEventListener('wheel', (e) => {
             this.selectedSlot = (this.selectedSlot + (e.deltaY > 0 ? 1 : -1) + 9) % 9;

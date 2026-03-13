@@ -12,7 +12,13 @@ export const BLOCK_TYPES = {
     PLANKS: 10,
     COBBLESTONE: 11,
     GLASS: 13,
-    GRAVEL: 14
+    GRAVEL: 14,
+    MUD: 15,
+    CACTUS: 16,
+    COAL_ORE: 19,
+    IRON_ORE: 20,
+    GOLD_ORE: 21,
+    DIAMOND_ORE: 22
 };
 
 export const BLOCKS = {
@@ -29,5 +35,11 @@ export const BLOCKS = {
     [BLOCK_TYPES.PLANKS]: { name: 'Planks', color: 0x8d6e63, texture: 'planks' },
     [BLOCK_TYPES.COBBLESTONE]: { name: 'Cobblestone', color: 0x757575, texture: 'cobblestone' },
     [BLOCK_TYPES.GLASS]: { name: 'Glass', color: 0xffffff, texture: 'glass', transparent: true },
-    [BLOCK_TYPES.GRAVEL]: { name: 'Gravel', color: 0x9e9e9e, texture: 'gravel' }
+    [BLOCK_TYPES.GRAVEL]: { name: 'Gravel', color: 0x9e9e9e, texture: 'gravel' },
+    [BLOCK_TYPES.MUD]: { name: 'Mud', color: 0x3e2723, texture: 'dirt' },
+    [BLOCK_TYPES.CACTUS]: { name: 'Cactus', color: 0x2e7d32, texture: 'leaves' },
+    [BLOCK_TYPES.COAL_ORE]: { name: 'Coal Ore', color: 0x333333, texture: 'stone' },
+    [BLOCK_TYPES.IRON_ORE]: { name: 'Iron Ore', color: 0xd8af93, texture: 'stone' },
+    [BLOCK_TYPES.GOLD_ORE]: { name: 'Gold Ore', color: 0xfcc201, texture: 'stone' },
+    [BLOCK_TYPES.DIAMOND_ORE]: { name: 'Diamond Ore', color: 0xb9f2ff, texture: 'stone' }
 };

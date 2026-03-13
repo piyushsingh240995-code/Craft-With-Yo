@@ -61,7 +61,7 @@ export class MobileControls {
             let dx = touch.clientX - centerX;
             let dy = touch.clientY - centerY;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            const maxDist = 50; // Smaller max dist for better control
+            const maxDist = 40; // Even smaller for tighter control
             
             if (dist > maxDist) {
                 dx *= maxDist / dist;
@@ -69,12 +69,18 @@ export class MobileControls {
             }
             
             knob.style.transform = `translate(${dx}px, ${dy}px)`;
-            this.controls.joystickPos = { x: dx / maxDist, y: dy / maxDist };
+            // Increase sensitivity by using a power function or just a multiplier
+            const sensitivity = 1.2;
+            this.controls.joystickPos = { 
+                x: (dx / maxDist) * sensitivity, 
+                y: (dy / maxDist) * sensitivity 
+            };
         };
 
         joyContainer.addEventListener('touchstart', (e) => {
             if (joyTouchId === null) {
                 joyTouchId = e.changedTouches[0].identifier;
+                if (navigator.vibrate) navigator.vibrate(10); // Subtle haptic for joystick start
                 handleTouch(e);
             }
         }, { passive: false });
@@ -135,6 +141,7 @@ export class MobileControls {
                 e.stopPropagation();
                 btn.style.background = 'rgba(255,255,255,0.5)';
                 btn.style.transform = 'scale(0.9)';
+                if (navigator.vibrate) navigator.vibrate(30); // Haptic feedback
                 action(true);
             }, { passive: false });
             
@@ -158,6 +165,16 @@ export class MobileControls {
         const placeBtn = createBtn('PLC', (val) => { 
             if(val) window.dispatchEvent(new CustomEvent('game-place'));
         });
+        const terrainBtn = createBtn('TRN', (val) => {
+            if(val) window.dispatchEvent(new CustomEvent('game-terrain-toggle'));
+        });
+        terrainBtn.style.position = 'fixed';
+        terrainBtn.style.top = '20px';
+        terrainBtn.style.right = '20px';
+        terrainBtn.style.width = '60px';
+        terrainBtn.style.height = '60px';
+        terrainBtn.style.fontSize = '12px';
+        this.container.appendChild(terrainBtn);
 
         btnContainer.appendChild(breakBtn);
         btnContainer.appendChild(placeBtn);

@@ -30,7 +30,9 @@ export class Lighting {
         this.ambientLight.intensity = 0.3 + intensity * 0.3;
         
         // Only update background color if not underwater (handled in main.js)
-        const skyColor = new THREE.Color().setHSL(0.6, 0.5, 0.2 + intensity * 0.5);
+        const skyColor = new THREE.Color(0x87ceeb);
+        // Mute sky color slightly based on intensity for day/night
+        skyColor.lerp(new THREE.Color(0x050510), 1 - intensity);
         this.scene.background.copy(skyColor);
     }
 }

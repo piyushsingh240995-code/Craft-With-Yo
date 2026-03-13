@@ -8,7 +8,7 @@ export class World {
         this.scene = scene;
         this.chunks = new Map();
         this.generator = new TerrainGenerator(Math.random());
-        this.renderDistance = 4;
+        this.renderDistance = 2;
         this.lastPX = null;
         this.lastPZ = null;
         this.chunksToLoad = [];
@@ -35,7 +35,7 @@ export class World {
         return chunk.getBlock(localX, y, localZ);
     }
 
-    setBlock(x, y, z, type) {
+    setBlock(x, y, z, type, refreshMesh = true) {
         const chunkX = Math.floor(x / CHUNK_SIZE);
         const chunkZ = Math.floor(z / CHUNK_SIZE);
         let chunk = this.getChunk(chunkX, chunkZ);
@@ -48,11 +48,19 @@ export class World {
         const localZ = ((z % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE;
         chunk.setBlock(localX, y, localZ, type);
         
-        // Re-mesh chunk
+        if (refreshMesh) {
+            this.refreshChunkMesh(chunkX, chunkZ);
+        }
+    }
+
+    refreshChunkMesh(x, z) {
+        const chunk = this.getChunk(x, z);
+        if (!chunk) return;
+
         if (chunk.mesh) {
             this.scene.remove(chunk.mesh);
             chunk.mesh.geometry.dispose();
-            chunk.mesh.material.dispose();
+            // Material is shared, don't dispose
         }
         this.scene.add(chunk.generateMesh());
     }
@@ -61,42 +69,30 @@ export class World {
         const chunk = new Chunk(x, z, this);
         this.chunks.set(this.getChunkKey(x, z), chunk);
 
-        // Generate terrain
+        // Generate terrain in a single pass
         for (let lx = 0; lx < CHUNK_SIZE; lx++) {
             for (let lz = 0; lz < CHUNK_SIZE; lz++) {
                 const wx = x * CHUNK_SIZE + lx;
                 const wz = z * CHUNK_SIZE + lz;
                 const height = this.generator.getHeightAt(wx, wz);
+                const biome = this.generator.getBiomeAt(wx, wz);
 
                 for (let y = 0; y < CHUNK_HEIGHT; y++) {
-                    // Simple cave system using 3D noise
-                    const caveNoise = this.generator.noise.get3D(wx * 0.05, y * 0.05, wz * 0.05);
-                    const isCave = caveNoise > 0.4 && y < height - 2;
-
-                    if (isCave) {
-                        chunk.setBlock(lx, y, lz, BLOCK_TYPES.AIR);
-                        continue;
-                    }
-
                     const blockType = this.generator.getBlockAt(wx, y, wz, height);
                     if (blockType !== BLOCK_TYPES.AIR) {
                         chunk.setBlock(lx, y, lz, blockType);
                     }
                 }
-            }
-        }
 
-        // Generate trees
-        const waterLevel = 32;
-        for (let lx = 2; lx < CHUNK_SIZE - 2; lx++) {
-            for (let lz = 2; lz < CHUNK_SIZE - 2; lz++) {
-                const wx = x * CHUNK_SIZE + lx;
-                const wz = z * CHUNK_SIZE + lz;
-                const height = this.generator.getHeightAt(wx, wz);
-                const biome = this.generator.getBiomeAt(wx, wz);
-
-                if (Math.random() < biome.treeFrequency && height > waterLevel + 2) {
-                    this.generateTree(chunk, lx, height + 1, lz);
+                // Flora generation
+                const waterLevel = this.generator.settings.seaLevel;
+                if (height > waterLevel + 2) {
+                    const rand = Math.random();
+                    if (rand < biome.treeFrequency) {
+                        this.generateTree(chunk, lx, height + 1, lz, biome.name);
+                    } else if (biome.cactusFrequency && rand < biome.treeFrequency + biome.cactusFrequency) {
+                        this.generateCactus(chunk, lx, height + 1, lz);
+                    }
                 }
             }
         }
@@ -104,22 +100,51 @@ export class World {
         return chunk;
     }
 
-    generateTree(chunk, x, y, z) {
-        const trunkHeight = 4 + Math.floor(Math.random() * 3);
+    resetWorld() {
+        // Clear all chunks from scene and memory
+        for (const chunk of this.chunks.values()) {
+            if (chunk.mesh) {
+                this.scene.remove(chunk.mesh);
+                chunk.mesh.geometry.dispose();
+                // Material is shared, so don't dispose it here
+            }
+        }
+        this.chunks.clear();
+        this.lastPX = null;
+        this.lastPZ = null;
+        this.chunksToLoad = [];
+    }
+
+    generateTree(chunk, x, y, z, biomeName) {
+        let trunkHeight = 4 + Math.floor(Math.random() * 3);
+        let leafRadius = 2.5;
+
+        if (biomeName === 'Jungle') {
+            trunkHeight = 8 + Math.floor(Math.random() * 6);
+            leafRadius = 3.5;
+        }
+
         // Trunk
         for (let i = 0; i < trunkHeight; i++) {
             chunk.setBlock(x, y + i, z, BLOCK_TYPES.WOOD);
         }
         // Leaves
-        for (let lx = -2; lx <= 2; lx++) {
-            for (let ly = -2; ly <= 2; ly++) {
-                for (let lz = -2; lz <= 2; lz++) {
+        for (let lx = -Math.floor(leafRadius); lx <= Math.floor(leafRadius); lx++) {
+            for (let ly = -Math.floor(leafRadius); ly <= Math.floor(leafRadius); ly++) {
+                for (let lz = -Math.floor(leafRadius); lz <= Math.floor(leafRadius); lz++) {
                     const dist = Math.sqrt(lx * lx + ly * ly + lz * lz);
-                    if (dist < 2.5 && chunk.getBlock(x + lx, y + trunkHeight + ly, z + lz) === BLOCK_TYPES.AIR) {
+                    if (dist < leafRadius && chunk.getBlock(x + lx, y + trunkHeight + ly, z + lz) === BLOCK_TYPES.AIR) {
                         chunk.setBlock(x + lx, y + trunkHeight + ly, z + lz, BLOCK_TYPES.LEAVES);
                     }
                 }
             }
+        }
+    }
+
+    generateCactus(chunk, x, y, z) {
+        const height = 2 + Math.floor(Math.random() * 2);
+        for (let i = 0; i < height; i++) {
+            chunk.setBlock(x, y + i, z, BLOCK_TYPES.CACTUS);
         }
     }
 
@@ -152,11 +177,16 @@ export class World {
         }
 
         if (this.chunksToLoad.length > 0) {
-            const c = this.chunksToLoad.shift();
-            // Double check if it was created in the meantime
-            if (!this.chunks.has(this.getChunkKey(c.x, c.z))) {
-                const chunk = this.createChunk(c.x, c.z);
-                this.scene.add(chunk.generateMesh());
+            // Load more chunks per frame if we have many to load (e.g. after reset)
+            const loadCount = this.chunksToLoad.length > 10 ? 3 : 1;
+            
+            for (let i = 0; i < loadCount && this.chunksToLoad.length > 0; i++) {
+                const c = this.chunksToLoad.shift();
+                const key = this.getChunkKey(c.x, c.z);
+                if (!this.chunks.has(key)) {
+                    const chunk = this.createChunk(c.x, c.z);
+                    this.scene.add(chunk.generateMesh());
+                }
             }
         }
     }

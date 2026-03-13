@@ -7,8 +7,11 @@ export class Boss extends Mob {
         if (!modelUrl) this.mesh.scale.set(2, 2, 2);
     }
 
-    update(delta, playerPos, world) {
-        AI.follow(this, playerPos, delta);
-        super.update(delta, playerPos, world);
+    update(delta, playerPos, world, physics, pathfinding) {
+        if (this.isDead) {
+            return super.update(delta, playerPos, world, physics, pathfinding);
+        }
+        // AI.follow is now handled by pathfinding in super.update
+        super.update(delta, playerPos, world, physics, pathfinding);
     }
 }
